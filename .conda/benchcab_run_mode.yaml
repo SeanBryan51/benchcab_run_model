@@ -1,0 +1,9 @@
+name: benchcab_install
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.9
+  - pip
+  - pyyaml
+  - git
