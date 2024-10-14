@@ -1,4 +1,4 @@
-name: benchcab_install
+name: benchcab_run_model
 channels:
   - conda-forge
 
