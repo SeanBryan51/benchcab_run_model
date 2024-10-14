@@ -1,12 +1,23 @@
 import yaml
-import hpcpy
 import subprocess
 import string
 import tempfile
 import time
+import os
+import contextlib
 
 CONFIG_FILE_NAME = "config.yaml"
 TEMPDIR_PREFIX = "benchcab_run_model_"
+
+
+@contextlib.contextmanager
+def working_dir(newdir):
+    prevdir = os.getcwd()
+    os.chdir(newdir)
+    try:
+        yield
+    finally:
+        os.chdir(prevdir)
 
 
 def interpolate_string(input, mapping):
@@ -23,6 +34,19 @@ def fetch_repo(spec, dest):
             subprocess.run(f"cd {dest} && git checkout {ref}", shell=True, check=True)
 
 
+def get_env(spec):
+    # TODO(Sean): add append_path, prepend_path, unset, remove_path
+    env = dict()
+    if "export" in spec:
+        if spec["export"] == "all":
+            env = os.environ.copy()
+        else:
+            env = {k: os.environ[k] for k in spec["export"]}
+    if "set" in spec:
+        env = {**env, **spec["set"]}
+    return env
+
+
 def benchcab_run_model():
 
     with open(CONFIG_FILE_NAME) as file:
@@ -36,18 +60,23 @@ def benchcab_run_model():
         if "fetch_from" in model_config:
             fetch_repo(model_config["fetch_from"], model_config_root_path)
 
-        if "run_script" in model_config:
-            run_script_path = interpolate_string(
-                model_config["run_script"], template_mapping
-            )
-            client = hpcpy.PBSClient()
-            # TODO(hpcpy): what is the behaviour when hpcpy cannot infer the scheduler
-            # on the current machine? In that case, try exectute the run script
-            # directly.
-            if "env" in model_config:
-                # TODO: specify environment variables via hpcpy
-                pass
-            client.submit(run_script_path)
+        run_script_path = interpolate_string(
+            model_config["run_script"], template_mapping
+        )
+        env = dict()
+        if "env" in model_config:
+            env = get_env(model_config["env"])
+        # TODO(Sean): test hpcpy integration
+        # try:
+        #     client = hpcpy.get_client()
+        #     client.submit(
+        #         run_script_path,
+        #         variables=env,
+        #     )
+        # except exc as hpcpy.exceptions.NoClientException:
+        #     # Try running script directly:
+        with working_dir(model_config_root_path):
+            subprocess.run(run_script_path, shell=True, check=True, env=env)
 
 
 if __name__ == "__main__":

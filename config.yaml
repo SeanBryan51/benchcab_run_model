@@ -6,7 +6,13 @@ model_configs:
       ref: main
   run_script: ${MODEL_CONFIG_ROOT}/run.sh
   env:
+    # CABLE_INPUTS is designed to be set on a per user basis and is required so
+    # that input files are discoverable. See
+    # https://github.com/SeanBryan51/cable_TumbaFluxnet_example/blob/main/config.sh
+    export: [CABLE_INPUTS]
     set:
-      # Required to specify the CABLE binary to use for the configuration:
-      # Note: assume MODEL_PREFIX_PATH is always defined
-      CABLE_BIN: ${MODEL_PREFIX_PATH}/cable
+      # This is required to set the CABLE executable for this model
+      # configuration. Note the hard-coded path is a temporary hack and should
+      # instead be set to ${MODEL_PREFIX_PATH}/cable where MODEL_PREFIX_PATH is
+      # a variable defined by benchcab:
+      CABLE_EXE: /Users/seanbryan/dev_local/cable/bin/cable
