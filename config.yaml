@@ -1,0 +1,12 @@
+model_configs:
+- model_config: TumbaFluxnet
+  fetch_from:
+    git:
+      url: https://github.com/SeanBryan51/cable_TumbaFluxnet_example
+      ref: main
+  run_script: ${MODEL_CONFIG_ROOT}/run.sh
+  env:
+    set:
+      # Required to specify the CABLE binary to use for the configuration:
+      # Note: assume MODEL_PREFIX_PATH is always defined
+      CABLE_BIN: ${MODEL_PREFIX_PATH}/cable
