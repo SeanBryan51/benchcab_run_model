@@ -34,16 +34,16 @@ def fetch_repo(spec, dest):
             subprocess.run(f"cd {dest} && git checkout {ref}", shell=True, check=True)
 
 
-def get_env(spec):
+def get_env(export=None, set=None):
     # TODO(Sean): add append_path, prepend_path, unset, remove_path
     env = dict()
-    if "export" in spec:
-        if spec["export"] == "all":
+    if export:
+        if export == "all":
             env = os.environ.copy()
         else:
-            env = {k: os.environ[k] for k in spec["export"]}
-    if "set" in spec:
-        env = {**env, **spec["set"]}
+            env = {k: os.environ[k] for k in export}
+    if set:
+        env = {**env, **set}
     return env
 
 
@@ -65,7 +65,7 @@ def benchcab_run_model():
         )
         env = dict()
         if "env" in model_config:
-            env = get_env(model_config["env"])
+            env = get_env(**model_config["env"])
         # TODO(Sean): test hpcpy integration
         # try:
         #     client = hpcpy.get_client()
