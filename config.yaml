@@ -16,3 +16,4 @@ model_configs:
       # instead be set to ${MODEL_PREFIX_PATH}/cable where MODEL_PREFIX_PATH is
       # a variable defined by benchcab:
       CABLE_EXE: /Users/seanbryan/dev_local/cable/bin/cable
+  outputs: ${MODEL_CONFIG_ROOT}/outputs/out_cable.nc
