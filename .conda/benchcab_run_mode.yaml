@@ -1,9 +1,11 @@
 name: benchcab_run_model
 channels:
   - conda-forge
+  - accessnri
 
 dependencies:
   - python=3.9
   - pip
   - pyyaml
   - git
+  - hpcpy

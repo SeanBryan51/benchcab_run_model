@@ -5,6 +5,8 @@ import tempfile
 import time
 import os
 import contextlib
+import hpcpy
+import hpcpy.exceptions
 
 CONFIG_FILE_NAME = "config.yaml"
 TEMPDIR_PREFIX = "benchcab_run_model_"
@@ -66,17 +68,18 @@ def benchcab_run_model():
         env = dict()
         if "env" in model_config:
             env = get_env(**model_config["env"])
-        # TODO(Sean): test hpcpy integration
-        # try:
-        #     client = hpcpy.get_client()
-        #     client.submit(
-        #         run_script_path,
-        #         variables=env,
-        #     )
-        # except exc as hpcpy.exceptions.NoClientException:
-        #     # Try running script directly:
-        with working_dir(model_config_root_path):
-            subprocess.run(run_script_path, shell=True, check=True, env=env)
+        try:
+            client = hpcpy.get_client()
+            client.submit(
+                run_script_path,
+                variables=env,
+            )
+        except hpcpy.exceptions.NoClientException:
+            try:
+                with working_dir(model_config_root_path):
+                    subprocess.run(run_script_path, shell=True, check=True, env=env)
+            except subprocess.CalledProcessError as exc:
+                raise exc from None
 
 
 if __name__ == "__main__":
