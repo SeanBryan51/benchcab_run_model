@@ -68,18 +68,18 @@ def benchcab_run_model():
         env = dict()
         if "env" in model_config:
             env = get_env(**model_config["env"])
-        try:
-            client = hpcpy.get_client()
-            client.submit(
-                run_script_path,
-                variables=env,
-            )
-        except hpcpy.exceptions.NoClientException:
+        with working_dir(model_config_root_path):
             try:
-                with working_dir(model_config_root_path):
+                client = hpcpy.get_client()
+                client.submit(
+                    run_script_path,
+                    variables=env,
+                )
+            except hpcpy.exceptions.NoClientException:
+                try:
                     subprocess.run(run_script_path, shell=True, check=True, env=env)
-            except subprocess.CalledProcessError as exc:
-                raise exc from None
+                except subprocess.CalledProcessError as exc:
+                    raise exc from None
 
 
 if __name__ == "__main__":

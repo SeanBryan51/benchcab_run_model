@@ -6,14 +6,21 @@ model_configs:
       ref: main
   run_script: ${MODEL_CONFIG_ROOT}/run.sh
   env:
-    # CABLE_INPUTS is designed to be set on a per user basis and is required so
-    # that input files are discoverable. See
-    # https://github.com/SeanBryan51/cable_TumbaFluxnet_example/blob/main/config.sh
-    export: [CABLE_INPUTS]
+    export: [
+      # CABLE_INPUTS is designed to be set on a per user basis and is required so
+      # that input files are discoverable. See
+      # https://github.com/SeanBryan51/cable_TumbaFluxnet_example/blob/main/config.sh
+      CABLE_INPUTS,
+      # This is needed as the job script does not specify a project and
+      # (strangely) the user defined PROJECT environment variable is not
+      # exported to the job when environment variables being specified directly
+      # to qsub with the -v flag (likely Gadi specific behaviour).
+      PROJECT,
+    ]
     set:
       # This is required to set the CABLE executable for this model
       # configuration. Note the hard-coded path is a temporary hack and should
       # instead be set to ${MODEL_PREFIX_PATH}/cable where MODEL_PREFIX_PATH is
       # a variable defined by benchcab:
-      CABLE_EXE: /Users/seanbryan/dev_local/cable/bin/cable
+      CABLE_EXE: /home/189/sb8430/cable/bin/cable
   outputs: ${MODEL_CONFIG_ROOT}/outputs/out_cable.nc
